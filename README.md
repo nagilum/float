@@ -17,7 +17,7 @@ Features:
 var host = new WebHostBuilder()
   .UseKestrel()
   .UseIISIntegration()
-  .UseStartup<FloatEngine>()
+  .UseStartup<FloatEngine>() // This is the magic!
   .Build();
 ```
 
@@ -83,7 +83,7 @@ public static GetUser(FloatRouteContext context) {
 	int id;
 	
 	if (context.Parameters["id"] == null ||
-		!int.TryParse(context.Parameters["id"], out id) {
+	    !int.TryParse(context.Parameters["id"], out id) {
 		throw new FloatRouteException(400);
 	}
 }
@@ -98,5 +98,7 @@ public static GetUser(FloatRouteContext context) {
 ## Serving Static Content
 
 ## Route Cache for Quicker Lookup
+
+When a route is executed the first time, the raw URL is added to a cache so the next time the route matching doesn't have to take place, which can save a fraction of the total request time.
 
 ## Use It to Serve HTML on /
