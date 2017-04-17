@@ -12,7 +12,7 @@ Features:
 
 ## Setup
 
-```csharp
+```
 // Here you replace the ```UseStartup<Startup>``` with
 // FloatEngine's own.
 var host = new WebHostBuilder()
@@ -82,7 +82,7 @@ The status code for the HTTP response.
 
 If you supply an error message, the response body will be a JSON object, as such:
 
-```json
+```
 {
   "errorMessage": "your message here"
 }
@@ -94,7 +94,7 @@ If you supply a payload, the entirety of it will be a serialized string of it.
 
 ### How To Use
 
-```csharp
+```
 // Throw a single 404 error.
 throw new FloatRouteException(404);
 
@@ -105,11 +105,47 @@ throw new FloatRouteException(400, "You did something wrong");
 throw new FloatRouteException(401, new { YO = "MAMA" });
 ```
 
+## The FloatRouteResponse Class
+
+In the route function you can either return any class, or more specifically, a FloatRouteResponse class. The FloatRouteResponse class will be routed directly to the response engine.
+
+The class contains the following properties:
+
+* StatusCode (int)
+* Headers (Dictionary (string, string))
+* Body (string)
+
+### StatusCode
+
+This is the status code that will be part of the HTTP response.
+
+### Headers
+
+Here you can put various headers you wish to be added to the response.
+
+### Body
+
+The string that will be the response body.
+
+### How To Use
+
+```
+// In one of your route functions, just return the
+// FloatRouteResponse class, as such
+return new FloatRouteResponse {
+  StatusCode = 200,
+  Headers = new Dictionary<string, string> {
+    {"Content-Type", "text/html"}
+  },
+  Body = "<!doctype html><html></html>"
+};
+```
+
 ## Route-to-Function Execution
 
 The whole point of the framework is to connect routes to functions, making it easy for you, the developer, to concentrate on the actual content being served.
 
-```csharp
+```
 // Put this is your start-up somewhere.
 FloatEngine.RegisterRouteFunction(
   "api/v1/user",
@@ -153,7 +189,7 @@ public static GetUser(FloatRouteContext context) {
 
 You can add middleware to be executed for each route.
 
-```csharp
+```
 // This will execute FirstMiddlewareFunction() first,
 // then SecondMiddlewareFunction(), then GetUser().
 FloatEngine.RegisterRouteFunction(
@@ -178,7 +214,7 @@ public static FirstMiddlewareFunction(FloatRouteContext context) {
 
 You can register middleware functions that will be executed before each route request.
 
-```csharp
+```
 // If you register more than one global middleware, they will
 // be executed in the order they are added.
 FloatEngine.RegisterGlobalMiddleware(MahGlobalMW);
@@ -192,7 +228,7 @@ public static void MahGlobalMW(FloatRouteContext context) {
 
 Sometimes you also might want to serve some content that doesn't need to go through a route. You can set up folders that will be served statically.
 
-```csharp
+```
 // This will register the remote folder "assets" to answer to
 // the local folder "MyLocalAssets", meaning, if you request
 // the file /assets/css/app.css, the local file
@@ -210,9 +246,11 @@ When a route is executed the first time, the raw URL is added to a cache so the 
 
 If you want to serve content on ```/``` then you simply add a route as such:
 
-```csharp
+```
 FloatEngine.RegisterRouteFunction(
   "",
   FloatHttpMethod.GET,
-  ServeMyStartpage);
+  (context) => {
+    return new 
+  });
 ```
