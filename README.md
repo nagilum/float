@@ -1,6 +1,6 @@
 ﻿# A C# .NET Core Route Engine
 
-A simple route-to-function engine for use with .NET Core web application.
+A simple async route-to-function engine for use with .NET Core web application.
 
 Features:
 
