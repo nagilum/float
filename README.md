@@ -9,7 +9,7 @@ Features:
 * [Global Middleware](#user-content-global-middleware)
 * [Serving Static Content](#user-content-serving-static-content)
 * [Route Cache for Quicker Lookup](#user-content-route-cache-for-quicker-lookup)
-* [Use It to Serve HTML on /](#)
+* [Use It to Serve HTML on /](#user-content-use-it-to-serve-html-on-)
 
 ## Setup
 
