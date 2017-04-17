@@ -4,11 +4,12 @@ A simple route-to-function engine for use with .NET Core web application.
 
 Features:
 
-* Route-to-Function Execution
-* Route Specific Middleware
-* Global Middleware
-* Serving Static Content
-* Route Cache for Quicker Lookup
+* [Route-to-Function Execution](#user-content-route-to-function-execution)
+* [Route Specific Middleware](#user-content-route-specific-middleware)
+* [Global Middleware](#user-content-global-middleware)
+* [Serving Static Content](#user-content-serving-static-content)
+* [Route Cache for Quicker Lookup](#user-content-route-cache-for-quicker-lookup)
+* [Use It to Serve HTML on /](#)
 
 ## Setup
 
@@ -21,6 +22,12 @@ var host = new WebHostBuilder()
   .UseStartup<FloatEngine>() // This is the magic!
   .Build();
 ```
+
+## Classes You Need to Know About
+
+* [FloatRouteContext](#user-content-the-floatroutecontext-class)
+* [FloatRouteException](#user-content-the-floatrouteexception-class)
+* [FloatRouteResponse](#user-content-the-floatrouteresponse-class)
 
 ## The FloatRouteContext Class
 
@@ -251,6 +258,12 @@ FloatEngine.RegisterRouteFunction(
   "",
   FloatHttpMethod.GET,
   (context) => {
-    return new 
+    return new FloatRouteResponse {
+      StatusCode = 200,
+      Headers = new Dictionary<string, string> {
+        {"Content-Type", "text/html"}
+      },
+      Body = "<!doctype html><html></html>"
+    }
   });
 ```
