@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,11 +24,6 @@ namespace Float {
         /// <summary>
         /// 
         /// </summary>
-        private static List<FloatRouteMiddleware> RouteMiddleware;
-
-        /// <summary>
-        /// 
-        /// </summary>
         private static List<FloatRoute> Routes;
 
         /// <summary>
@@ -48,9 +42,9 @@ namespace Float {
                     return;
                 }
 
-                if (res.StatusCode > 0) {
-                    context.Response.StatusCode = res.StatusCode;
-                }
+                context.Response.StatusCode = res.StatusCode > 0
+                    ? res.StatusCode
+                    : 200;
 
                 if (res.Headers != null) {
                     foreach (var header in res.Headers) {
@@ -237,6 +231,10 @@ namespace Float {
                             });
                         }
 
+                        if (ex.Payload != null) {
+                            response.Body = JsonConvert.SerializeObject(ex.Payload);
+                        }
+
                         if (string.IsNullOrWhiteSpace(response.Body) &&
                             !string.IsNullOrWhiteSpace(ex.Message)) {
                             response.Body = JsonConvert.SerializeObject(new {
@@ -265,8 +263,6 @@ namespace Float {
                 }
             }
 
-            // TODO: Execute all route-matching middleware.
-
             // Execute all route specific middleware.
             if (route.Middleware != null) {
                 foreach (var mw in route.Middleware) {
@@ -285,6 +281,10 @@ namespace Float {
                             response.Body = JsonConvert.SerializeObject(new {
                                 errorMessage = ex.ErrorMessage
                             });
+                        }
+
+                        if (ex.Payload != null) {
+                            response.Body = JsonConvert.SerializeObject(ex.Payload);
                         }
 
                         if (string.IsNullOrWhiteSpace(response.Body) &&
@@ -352,6 +352,10 @@ namespace Float {
                     });
                 }
 
+                if (ex.Payload != null) {
+                    response.Body = JsonConvert.SerializeObject(ex.Payload);
+                }
+
                 if (string.IsNullOrWhiteSpace(response.Body) &&
                     !string.IsNullOrWhiteSpace(ex.Message)) {
                     response.Body = JsonConvert.SerializeObject(new {
@@ -400,22 +404,7 @@ namespace Float {
         /// <summary>
         /// 
         /// </summary>
-        public static void RegisterRouteMiddleware(string routeUrl, Action<FloatRouteContext> function) {
-            if (RouteMiddleware == null) {
-                RouteMiddleware = new List<FloatRouteMiddleware>();
-            }
-
-            RouteMiddleware.Add(
-                new FloatRouteMiddleware {
-                    RouteUrl = routeUrl,
-                    Function = function
-                });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static void RegisterRouteFunction(string routeUrl, HttpMethod method, Func<FloatRouteContext, object> function, List<Action<FloatRouteContext>> middleware = null) {
+        public static void RegisterRouteFunction(string routeUrl, FloatHttpMethod method, Func<FloatRouteContext, object> function, List<Action<FloatRouteContext>> middleware = null) {
             if (Routes == null) {
                 Routes = new List<FloatRoute>();
             }
@@ -459,7 +448,7 @@ namespace Float {
             /// <summary>
             /// 
             /// </summary>
-            public HttpMethod Method { get; set; }
+            public FloatHttpMethod Method { get; set; }
 
             /// <summary>
             /// 
@@ -476,6 +465,27 @@ namespace Float {
             /// </summary>
             public List<Action<FloatRouteContext>> Middleware { get; set; }
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum FloatHttpMethod {
+        COPY,
+        DELETE,
+        GET,
+        HEAD,
+        LINK,
+        LOCK,
+        OPTIONS,
+        PATCH,
+        POST,
+        PROPFIND,
+        PURGE,
+        PUT,
+        UNLINK,
+        UNLOCK,
+        VIEW
     }
 
     /// <summary>
@@ -569,10 +579,18 @@ namespace Float {
         /// </summary>
         /// <param name="statusCode"></param>
         /// <param name="errorMessage"></param>
-        /// <param name="payload"></param>
-        public FloatRouteException(int statusCode, string errorMessage = null, object payload = null) {
+        public FloatRouteException(int statusCode, string errorMessage = null) {
             this.StatusCode = statusCode;
             this.ErrorMessage = errorMessage;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="payload"></param>
+        public FloatRouteException(int statusCode, object payload) {
+            this.StatusCode = statusCode;
             this.Payload = payload;
         }
     }
