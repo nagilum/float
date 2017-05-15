@@ -12,27 +12,29 @@ using Newtonsoft.Json;
 namespace Float {
     public class FloatEngine {
         /// <summary>
-        /// 
+        /// A list of global middleware.
         /// </summary>
         private static List<Action<FloatRouteContext>> GlobalMiddleware;
 
         /// <summary>
-        /// 
+        /// A list of route cache entries.
         /// </summary>
         private static List<FloatRouteCacheEntry> RouteCache;
 
         /// <summary>
-        /// 
+        /// A list of actual routes.
         /// </summary>
         private static List<FloatRoute> Routes;
 
         /// <summary>
-        /// 
+        /// A list of mapped static folders.
         /// </summary>
         private static Dictionary<string, string> StaticFolder;
 
+        #region Engine handlers
+
         /// <summary>
-        /// 
+        /// Run the actual app in async mode.
         /// </summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory lf) {
             app.Run(async (context) => {
@@ -61,7 +63,7 @@ namespace Float {
         }
 
         /// <summary>
-        /// 
+        /// Handle each request.
         /// </summary>
         public async Task<FloatRouteResponse> HandleRequest(HttpContext context) {
             var request = context.Request;
@@ -391,8 +393,12 @@ namespace Float {
             };
         }
 
+        #endregion
+
+        #region Register functions
+
         /// <summary>
-        /// 
+        /// Register a global middleware function.
         /// </summary>
         public static void RegisterGlobalMiddleware(Action<FloatRouteContext> function) {
             if (GlobalMiddleware == null) {
@@ -403,7 +409,7 @@ namespace Float {
         }
 
         /// <summary>
-        /// 
+        /// Register a function execution route.
         /// </summary>
         public static void RegisterRouteFunction(string routeUrl, FloatHttpMethod method, Func<FloatRouteContext, object> function, List<Action<FloatRouteContext>> middleware = null) {
             if (Routes == null) {
@@ -427,7 +433,7 @@ namespace Float {
         }
 
         /// <summary>
-        /// 
+        /// Register a static folder.
         /// </summary>
         public static void RegisterStaticFolder(string localPath, string remotePath) {
             if (StaticFolder == null) {
@@ -437,39 +443,70 @@ namespace Float {
             StaticFolder.Add(remotePath, localPath);
         }
 
+        #endregion
+
+        #region Internal helper classes
+
         /// <summary>
-        /// 
+        /// A route object.
         /// </summary>
         private class FloatRoute {
             /// <summary>
-            /// 
+            /// Unique identifier.
             /// </summary>
             public string Guid { get; set; }
 
             /// <summary>
-            /// 
+            /// HTTP method.
             /// </summary>
             public FloatHttpMethod Method { get; set; }
 
             /// <summary>
-            /// 
+            /// The URL divided into sections.
             /// </summary>
             public string[] RouteSections { get; set; }
 
             /// <summary>
-            /// 
+            /// Function to execute.
             /// </summary>
             public Func<FloatRouteContext, object> Function { get; set; }
 
             /// <summary>
-            /// 
+            /// Middleware to execute.
             /// </summary>
             public List<Action<FloatRouteContext>> Middleware { get; set; }
         }
+
+        /// <summary>
+        /// A route cache entry.
+        /// </summary>
+        private class FloatRouteCacheEntry {
+            /// <summary>
+            /// URL for the route.
+            /// </summary>
+            public string RouteUrl { get; set; }
+
+            /// <summary>
+            /// HTTP method.
+            /// </summary>
+            public string Method { get; set; }
+
+            /// <summary>
+            /// Identifier for route entry.
+            /// </summary>
+            public string Guid { get; set; }
+
+            /// <summary>
+            /// Saved parameters.
+            /// </summary>
+            public Dictionary<string, string> Parameters { get; set; }
+        }
+
+        #endregion
     }
 
     /// <summary>
-    /// 
+    /// A list of HTTP methods.
     /// </summary>
     public enum FloatHttpMethod {
         COPY,
@@ -490,63 +527,41 @@ namespace Float {
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    public class FloatRouteCacheEntry {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string RouteUrl { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Method { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Guid { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Dictionary<string, string> Parameters { get; set; }
-    }
-
-    /// <summary>
-    /// 
+    /// Context passed to each function.
     /// </summary>
     public class FloatRouteContext {
+        /// <summary>
+        /// Whether or not the request is localhost.
+        /// </summary>
         public bool IsLocal { get; set; }
 
         /// <summary>
-        /// 
+        /// The request object.
         /// </summary>
         public HttpRequest Request { get; set; }
 
         /// <summary>
-        /// 
+        /// A list of headers.
         /// </summary>
         public IHeaderDictionary Headers { get; set; }
 
         /// <summary>
-        /// 
+        /// Route parameters.
         /// </summary>
         public Dictionary<string, string> Parameters { get; set; }
 
         /// <summary>
-        /// 
+        /// Objects being passed between functions.
         /// </summary>
         public Dictionary<string, object> Objects { get; set; }
 
         /// <summary>
-        /// 
+        /// Body of the request.
         /// </summary>
         public string Body { get; set; }
 
         /// <summary>
-        /// 
+        /// Cast the body to a given class.
         /// </summary>
         public T BodyTo<T>() {
             try {
@@ -559,39 +574,35 @@ namespace Float {
     }
 
     /// <summary>
-    /// 
+    /// Specific route exception.
     /// </summary>
     public class FloatRouteException : Exception {
         /// <summary>
-        /// 
+        /// HTTP status code.
         /// </summary>
         public int StatusCode { get; set; }
 
         /// <summary>
-        /// 
+        /// Error message.
         /// </summary>
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// 
+        /// Payload to serve.
         /// </summary>
         public object Payload { get; set; }
 
         /// <summary>
-        /// 
+        /// Constructor.
         /// </summary>
-        /// <param name="statusCode"></param>
-        /// <param name="errorMessage"></param>
         public FloatRouteException(int statusCode, string errorMessage = null) {
             this.StatusCode = statusCode;
             this.ErrorMessage = errorMessage;
         }
 
         /// <summary>
-        /// 
+        /// Constructor.
         /// </summary>
-        /// <param name="statusCode"></param>
-        /// <param name="payload"></param>
         public FloatRouteException(int statusCode, object payload) {
             this.StatusCode = statusCode;
             this.Payload = payload;
@@ -599,36 +610,21 @@ namespace Float {
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    public class FloatRouteMiddleware {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string RouteUrl { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Action<FloatRouteContext> Function { get; set; }
-    }
-
-    /// <summary>
-    /// 
+    /// A response object.
     /// </summary>
     public class FloatRouteResponse {
         /// <summary>
-        /// 
+        /// HTTP status code.
         /// </summary>
         public int StatusCode { get; set; }
 
         /// <summary>
-        /// 
+        /// Headers to serve.
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// 
+        /// Body of the response.
         /// </summary>
         public string Body { get; set; }
     }
