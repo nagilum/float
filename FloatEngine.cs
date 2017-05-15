@@ -111,6 +111,7 @@ namespace Float {
 
             // Prepare the context.
             var ctx = new FloatRouteContext {
+                IsLocal = request.Host.Host == "localhost",
                 Request = request,
                 Headers = request.Headers,
                 Parameters = new Dictionary<string, string>(),
@@ -517,6 +518,8 @@ namespace Float {
     /// 
     /// </summary>
     public class FloatRouteContext {
+        public bool IsLocal { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
