@@ -635,5 +635,56 @@ namespace Float {
         /// Body of the response.
         /// </summary>
         public string Body { get; set; }
+
+        /// <summary>
+        /// Empty constructor.
+        /// </summary>
+        public FloatRouteResponse() {}
+
+        /// <summary>
+        /// Full constructor.
+        /// </summary>
+        public FloatRouteResponse(string body, int statusCode = 200, Dictionary<string, string> headers = null) {
+            this.StatusCode = statusCode;
+            this.Headers = headers;
+            this.Body = body;
+        }
+    }
+
+    /// <summary>
+    /// Simple response object for HTML.
+    /// </summary>
+    public class FloatRouteHtmlResponse : FloatRouteResponse {
+        /// <summary>
+        /// Simple response object for HTML.
+        /// </summary>
+        public FloatRouteHtmlResponse(string html) {
+            this.StatusCode = 200;
+            this.Headers = new Dictionary<string, string> {{"Content-Type", "text/html"}};
+            this.Body = html;
+        }
+    }
+
+    /// <summary>
+    /// Simple response object for JSON.
+    /// </summary>
+    public class FloatRouteJsonResponse : FloatRouteResponse {
+        /// <summary>
+        /// Simple response object for JSON.
+        /// </summary>
+        public FloatRouteJsonResponse(string json) {
+            this.StatusCode = 200;
+            this.Headers = new Dictionary<string, string> {{"Content-Type", "application/json"}};
+            this.Body = json;
+        }
+
+        /// <summary>
+        /// Simple response object for JSON.
+        /// </summary>
+        public FloatRouteJsonResponse(object payload) {
+            this.StatusCode = 200;
+            this.Headers = new Dictionary<string, string> {{"Content-Type", "application/json"}};
+            this.Body = JsonConvert.SerializeObject(payload);
+        }
     }
 }
