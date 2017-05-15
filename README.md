@@ -165,7 +165,7 @@ FloatEngine.RegisterRouteFunction(
   GetUser);
 
 // This is the function executed for api/v1/user
-public static CreateUser(FloatRouteContext context) {
+public static FloatRouteResponse CreateUser(FloatRouteContext context) {
   // Do you magic inside here. You can either return a class,
   // which will automatically be serialized to JSON, or you can
   // return a FloatRouteResponse class where you can specify
@@ -173,7 +173,7 @@ public static CreateUser(FloatRouteContext context) {
 }
 
 // This is the function executed for api/v1/user/{id}
-public static GetUser(FloatRouteContext context) {
+public static FloatRouteResponse GetUser(FloatRouteContext context) {
   int id;
 
   if (context.Parameters["id"] == null ||
@@ -264,6 +264,6 @@ FloatEngine.RegisterRouteFunction(
         {"Content-Type", "text/html"}
       },
       Body = "<!doctype html><html></html>"
-    }
+    };
   });
 ```
