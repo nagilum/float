@@ -440,6 +440,14 @@ namespace Float {
                 StaticFolder = new Dictionary<string, string>();
             }
 
+            if (localPath.StartsWith("~")) {
+                localPath = Directory.GetCurrentDirectory() + localPath.Substring(1);
+            }
+
+            if (localPath.Contains("/")) {
+                localPath = localPath.Replace("/", "\\");
+            }
+
             StaticFolder.Add(remotePath, localPath);
         }
 
