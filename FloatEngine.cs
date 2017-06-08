@@ -165,6 +165,8 @@ namespace Float {
                 }
 
                 foreach (var temp in routes) {
+                    ctx.Parameters.Clear();
+
                     var matches = 0;
 
                     for (var i = 0; i < sections.Length; i++) {
