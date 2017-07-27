@@ -674,19 +674,49 @@ namespace Float {
         /// <summary>
         /// Simple response object for JSON.
         /// </summary>
-        public FloatRouteJsonResponse(string json) {
-            this.StatusCode = 200;
+        public FloatRouteJsonResponse(string json, Dictionary<string, string> headers = null, int statusCode = 200) {
+            this.StatusCode = statusCode;
             this.Headers = new Dictionary<string, string> {{"Content-Type", "application/json"}};
             this.Body = json;
+
+            if (headers == null) {
+                return;
+            }
+
+            foreach (var header in headers) {
+                if (this.Headers.ContainsKey(header.Key)) {
+                    this.Headers[header.Key] = header.Value;
+                }
+                else {
+                    this.Headers.Add(
+                        header.Key,
+                        header.Value);
+                }
+            }
         }
 
         /// <summary>
         /// Simple response object for JSON.
         /// </summary>
-        public FloatRouteJsonResponse(object payload) {
-            this.StatusCode = 200;
+        public FloatRouteJsonResponse(object payload, Dictionary<string, string> headers = null, int statusCode = 200) {
+            this.StatusCode = statusCode;
             this.Headers = new Dictionary<string, string> {{"Content-Type", "application/json"}};
             this.Body = JsonConvert.SerializeObject(payload);
+
+            if (headers == null) {
+                return;
+            }
+
+            foreach (var header in headers) {
+                if (this.Headers.ContainsKey(header.Key)) {
+                    this.Headers[header.Key] = header.Value;
+                }
+                else {
+                    this.Headers.Add(
+                        header.Key,
+                        header.Value);
+                }
+            }
         }
     }
 }
