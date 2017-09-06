@@ -54,11 +54,17 @@ namespace Float {
                     }
                 }
 
-                if (res.Body == null) {
-                    res.Body = string.Empty;
+                if (res.Bytes != null &&
+                    res.Bytes.Any()) {
+                    await context.Response.Body.WriteAsync(res.Bytes, 0, res.Bytes.Length);
                 }
+                else {
+                    if (res.Body == null) {
+                        res.Body = string.Empty;
+                    }
 
-                await context.Response.WriteAsync(res.Body);
+                    await context.Response.WriteAsync(res.Body);
+                }
             });
         }
 
@@ -634,9 +640,14 @@ namespace Float {
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// Body of the response.
+        /// String to respond with.
         /// </summary>
         public string Body { get; set; }
+
+        /// <summary>
+        /// Array of bytes to respond with.
+        /// </summary>
+        public byte[] Bytes { get; set; }
 
         /// <summary>
         /// Empty constructor.
