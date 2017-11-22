@@ -445,7 +445,7 @@ namespace Float {
         /// <summary>
         /// Sets the engine to automatically answer OPTIONS calls with CORS headers.
         /// </summary>
-        public static void EnableCORS(string origin = "*", string headers = "Content-Type") {
+        public static void EnableCORS(string origin = "*", string headers = "Authorization, Content-Type") {
             CORSEnabled = true;
             CORSOrigin = origin;
             CORSHeaders = headers;
