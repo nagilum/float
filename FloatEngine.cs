@@ -12,6 +12,21 @@ using Newtonsoft.Json;
 namespace Float {
     public class FloatEngine {
         /// <summary>
+        /// Whether or not CORS is enabled.
+        /// </summary>
+        private static bool CORSEnabled;
+
+        /// <summary>
+        /// Access-Control-Allow-Origin
+        /// </summary>
+        private static string CORSOrigin { get; set; }
+
+        /// <summary>
+        /// Access-Control-Allow-Headers
+        /// </summary>
+        private static string CORSHeaders { get; set; }
+
+        /// <summary>
         /// A list of global middleware.
         /// </summary>
         private static List<Action<FloatRouteContext>> GlobalMiddleware;
@@ -38,7 +53,19 @@ namespace Float {
         /// </summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory lf) {
             app.Run(async (context) => {
-                var res = await HandleRequest(context);
+                FloatRouteResponse res;
+
+                if (CORSEnabled && context.Request.Method.ToUpper() == "OPTIONS") {
+                    res = new FloatRouteResponse {
+                        Headers = new Dictionary<string, string> {
+                            {"Access-Control-Allow-Origin", CORSOrigin},
+                            {"Access-Control-Allow-Headers", CORSHeaders}
+                        }
+                    };
+                }
+                else {
+                    res = await HandleRequest(context);
+                }
 
                 if (res == null) {
                     return;
@@ -47,6 +74,16 @@ namespace Float {
                 context.Response.StatusCode = res.StatusCode > 0
                     ? res.StatusCode
                     : 200;
+
+                if (CORSEnabled) {
+                    if (res.Headers == null) {
+                        res.Headers = new Dictionary<string, string>();
+                    }
+
+                    if (!res.Headers.ContainsKey("Access-Control-Allow-Origin")) {
+                        res.Headers.Add("Access-Control-Allow-Origin", CORSOrigin);
+                    }
+                }
 
                 if (res.Headers != null) {
                     foreach (var header in res.Headers) {
@@ -404,6 +441,15 @@ namespace Float {
         #endregion
 
         #region Register functions
+
+        /// <summary>
+        /// Sets the engine to automatically answer OPTIONS calls with CORS headers.
+        /// </summary>
+        public static void EnableCORS(string origin = "*", string headers = "Content-Type") {
+            CORSEnabled = true;
+            CORSOrigin = origin;
+            CORSHeaders = headers;
+        }
 
         /// <summary>
         /// Register a global middleware function.
